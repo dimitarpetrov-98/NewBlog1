@@ -1,9 +1,16 @@
 <main>
     <div class="container body-content span=8 offset=2">
         <div class="well">
-            <form class="form-horizontal" th:action="@{/register}" method="post">
+            <form class="form-horizontal" th:action="@{/register}" method="post" enctype="multipart/form-data">
                 <fieldset>
                     <legend>Register</legend>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="profile_picture">Profile Picture</label>
+                        <div class="col-sm-4">
+                            <input type="file" class="form-control" id="profile_picture" placeholder="profile picture" multiple accept="image/*,image/jpeg" name="profilePicture"/>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label" for="user_email">Email</label>
                         <div class="col-sm-4 ">
@@ -32,11 +39,11 @@
                         <span class="btn" id="upload-dialog">Choose Profile Image</span>
                         <input type="file" id="image-file" style="display:none" name="profilePicture"/>
                     </div>-->
-                    <form action="form-group" >
+                    <!--<form action="form-group" >
                         <input type="file" name="fileupload" value="fileupload" id="fileupload">
                         <label for="fileupload"> Select a file to upload</label>
                         <br><input type="image" alt="Submit" width="100">
-                    </form>
+                    </form>-->
 
                     <div class="form-group">
                         <div  class="col-sm-4 col-sm-offset-4">

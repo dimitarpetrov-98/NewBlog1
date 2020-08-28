@@ -1,7 +1,12 @@
+
 <main>
     <div class="container body-container">
         <div class="row">
             <div id="main" class="col-sm-9">
+                <div>
+                    <img th:if="${user.profilePictureBase64}" th:src="@{'data:image/jpeg;base64,'+${user.profilePictureBase64}}" height="250" width="250"/>
+                    <br/>
+                </div>
                 <div>
                     <span th:text="${user.email}"></span>
                     <br/>

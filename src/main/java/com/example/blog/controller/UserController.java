@@ -5,6 +5,8 @@ import com.example.blog.entity.Role;
 import com.example.blog.entity.User;
 import com.example.blog.repository.RoleRepository;
 import com.example.blog.repository.UserRepository;
+import com.example.blog.service.UserService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -15,23 +17,28 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 
 @Controller
 public class UserController {
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    UserRepository userRepository;
 
-    @GetMapping("/register")
-    public String register(Model model){
-        model.addAttribute("view","user/register");
-        return "base-layout";
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService,
+                          RoleRepository roleRepository,
+                          UserRepository userRepository) {
+
+        this.userService = userService;
+        this.userRepository =userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("/login")
@@ -40,28 +47,19 @@ public class UserController {
         return "base-layout";
     }
 
-    @PostMapping("/register")
-    public String registerProcess(UserBindingModel userBindingModel, @RequestParam MultipartFile file) throws IOException {
+    @GetMapping("/register")
+    public String register(Model model){
+        model.addAttribute("view","user/register");
+        return "base-layout";
+    }
 
-        if(!userBindingModel.getPassword().equals(userBindingModel.getConfirmPassword())){
+    @PostMapping("/register")
+    public String registerProcess(UserBindingModel userBindingModel) throws IOException {
+
+        if (!userBindingModel.getPassword().equals(userBindingModel.getConfirmPassword())) {
             return "redirect:/register";
         }
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
-        //new added in user constructor
-
-
-        User user = new User(
-                userBindingModel.getEmail(),
-                userBindingModel.getFullName(),
-                bCryptPasswordEncoder.encode(userBindingModel.getPassword()),
-                userBindingModel.getPicture()
-        );
-        Role userRole = this.roleRepository.findByName("ROLE_USER");
-
-        user.addRole(userRole);
-
-        this.userRepository.saveAndFlush(user);
+        this.userService.create(userBindingModel);
 
         return "redirect:/login";
     }
@@ -80,14 +78,35 @@ public class UserController {
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public String profilePage(Model model){
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                                                                    .getAuthentication()
-                                                                    .getPrincipal();
-        User user = this.userRepository.findByEmail(principal.getUsername());
+        User user = this.userService.getCurrentUser();
 
-        model.addAttribute("user",user);
-        model.addAttribute("view","user/profile");
+        if(user.getProfilePicture() != null){
+            user.setProfilePictureBase64(Base64.getEncoder().encodeToString(user.getProfilePicture()));
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/profile");
 
         return "base-layout";
+    }
+
+    @GetMapping("/user/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String edit(Model model) throws NotFoundException {
+        User user = this.userService.getCurrentUser();
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/edit");
+
+
+        return "base-layout";
+    }
+
+    @PostMapping("/user/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String editProcess(@PathVariable Integer id,UserBindingModel userBindingModel) throws IOException, NotFoundException {
+        User user = this.userService.getById(id);
+        this.userService.edit(user, userBindingModel);
+
+        return "redirect:/";
     }
 }

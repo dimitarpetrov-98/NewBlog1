@@ -14,16 +14,7 @@ public class UserBindingModel {
     private String password;
     @NotNull
     private String  confirmPassword;
-
-    //new
-    private MultipartFile picture;
-    public byte[] getPicture() throws IOException{
-        return picture.getBytes();
-    }
-    public void setPicture(MultipartFile picture) {
-        this.picture = picture;
-    }
-    //till here
+    private MultipartFile profilePicture;
 
     public String getEmail() {
         return email;
@@ -56,4 +47,13 @@ public class UserBindingModel {
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
     }
+
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
 }

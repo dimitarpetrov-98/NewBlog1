@@ -17,23 +17,9 @@ public class User {
     private String password;
     private Set<Role> roles;
     private Set<Article> articles;
-
-    //new added
     private byte[] profilePicture;
-    //till here
+    private String profilePictureBase64;
 
-
-    public User(String email, String fullName, String password, byte[] picture) throws IOException {
-        this.email = email;
-        this.password = password;
-        this.fullName = fullName;
-
-        this.profilePicture = picture;
-
-        this.roles = new HashSet<>();
-        this.articles = new HashSet<>();
-    }
-    public User(){ }
 
     public User(String email, String fullName, String password) {
         this.email = email;
@@ -43,11 +29,7 @@ public class User {
         this.roles = new HashSet<>();
         this.articles = new HashSet<>();
     }
-
-    @Column(name="picture")
-    public byte[] getProfilePicture() { return profilePicture;   }
-    public void setProfilePicture(byte[] profilePicture) { this.profilePicture = profilePicture; }
-
+    public User(){ }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -120,4 +102,29 @@ public class User {
         return Objects.equals(this.getId(),
                 article.getAuthor().getId());
     }
+
+    @Column(name = "profile_picture")
+    public byte[] getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getProfilePictureBase64() {
+        return profilePictureBase64;
+    }
+
+    public void setProfilePictureBase64(String profilePictureBase64) {
+        this.profilePictureBase64 = profilePictureBase64;
+    }
+
+    // public String getProfilePictureBase64() {
+   //     return profilePictureBase64;
+   // }
+//
+   // public void setProfilePictureBase64(String profilePictureBase64) {
+   //     this.profilePictureBase64 = profilePictureBase64;
+   // }
 }
