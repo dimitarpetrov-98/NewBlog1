@@ -119,7 +119,7 @@ public class UserController {
 
 
     //new too
-    @GetMapping("/myarticles")
+    /*@GetMapping("/myarticles")
     @PreAuthorize("isAuthenticated()")
     public String listMyArticles(Model model){
         User user = this.userService.getCurrentUser();
@@ -140,6 +140,24 @@ public class UserController {
         model.addAttribute("view", "user/myarticles");
         return "base-layout";
     }
+    */
+
+    @GetMapping("/myarticles")
+    @PreAuthorize("isAuthenticated()")
+    public String listMyArticles(Model model){
+        User user = this.userService.getCurrentUser();
+
+        Set<Article> articles = user.getArticles();
+
+        model.addAttribute("articles", articles);
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/myarticles");
+        return "base-layout";
+    }
+
+
+
+
 
     //new method
     private boolean isUserAuthor(Article article){
