@@ -1,0 +1,61 @@
+<main>
+    <div class="container body-content span=8 offset=2">
+        <div class="main-body section-gap mt--40">
+            <div class="well">
+                <form class="form-horizontal" th:action="@{/user/edit/{id}(id=${user.id})}" method="POST" enctype="multipart/form-data">
+                    <fieldset>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <img id="preview-image" class="img-fluid" alt=""/>
+                            </div>
+                            <div id="preview-container">
+                                <!--                                <span class="btn" id="upload-dialog">Choose Profile Image</span>
+
+                                                                <input type="file" id="image-file" style="display:none" name="profilePicture"/>
+                                -->
+                                <label class="col-sm-4 control-label" for="profile_picture">Profile Picture</label>
+                                <div class="col-sm-4">
+                                    <input type="file" class="form-control" id="profile_picture" placeholder="profile picture" multiple accept="image/*,image/jpeg" name="profilePicture"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="user_email">Email</label>
+                            <div class="col-sm-4 ">
+                                <input class="form-control" type="email" id="user_email" placeholder="Email" name="email"
+                                       required="required" th:value="${user.email}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="user_fullName">Full Name</label>
+                            <div class="col-sm-4 ">
+                                <input class="form-control" type="text" id="user_fullName" placeholder="Full Name"
+                                       name="fullName" required="required" th:value="${user.fullName}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="user_password_first">Password</label>
+                            <div class="col-sm-4">
+                                <input type="password" class="form-control" id="user_password_first" placeholder="Password"
+                                       name="password"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="user_password_second">Confirm Password</label>
+                            <div class="col-sm-4">
+                                <input type="password" class="form-control" id="user_password_second" placeholder="Password"
+                                       name="confirmPassword"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-4">
+                                <!--<a class="btn btn-default" th:href="@{/user/{id}(id = ${user.id})}">Cancel</a>-->
+                                <input value="Edit" type="submit" class="btn btn-success"/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>

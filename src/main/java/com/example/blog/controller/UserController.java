@@ -1,8 +1,10 @@
 package com.example.blog.controller;
 
 import com.example.blog.bindingModel.UserBindingModel;
+import com.example.blog.entity.Article;
 import com.example.blog.entity.Role;
 import com.example.blog.entity.User;
+import com.example.blog.repository.ArticleRepository;
 import com.example.blog.repository.RoleRepository;
 import com.example.blog.repository.UserRepository;
 import com.example.blog.service.UserService;
@@ -20,8 +22,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.Console;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 public class UserController {
@@ -29,16 +35,21 @@ public class UserController {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
+    //new added article repo
+    private final ArticleRepository articleRepository;
     private final UserService userService;
 
     @Autowired
     public UserController(UserService userService,
                           RoleRepository roleRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          //new added repository
+                          ArticleRepository articleRepository) {
 
         this.userService = userService;
         this.userRepository =userRepository;
         this.roleRepository = roleRepository;
+        this.articleRepository = articleRepository;
     }
 
     @GetMapping("/login")
@@ -79,14 +90,11 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public String profilePage(Model model){
         User user = this.userService.getCurrentUser();
-
         if(user.getProfilePicture() != null){
             user.setProfilePictureBase64(Base64.getEncoder().encodeToString(user.getProfilePicture()));
         }
-
         model.addAttribute("user", user);
         model.addAttribute("view", "user/profile");
-
         return "base-layout";
     }
 
@@ -96,8 +104,6 @@ public class UserController {
         User user = this.userService.getCurrentUser();
         model.addAttribute("user", user);
         model.addAttribute("view", "user/edit");
-
-
         return "base-layout";
     }
 
@@ -106,7 +112,42 @@ public class UserController {
     public String editProcess(@PathVariable Integer id,UserBindingModel userBindingModel) throws IOException, NotFoundException {
         User user = this.userService.getById(id);
         this.userService.edit(user, userBindingModel);
-
         return "redirect:/";
     }
+
+
+
+
+    //new too
+    @GetMapping("/myarticles")
+    @PreAuthorize("isAuthenticated()")
+    public String listMyArticles(Model model){
+        User user = this.userService.getCurrentUser();
+
+        Set<Article> articles = new HashSet<>();
+
+        int id =1;
+        for(;id<=articleRepository.count();id++) {
+
+            Article article = this.articleRepository.findById(id).orElse(null);
+
+            if(isUserAuthor(article)) {
+                    articles.add(article);
+            }
+        }
+        model.addAttribute("articles", articles);
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/myarticles");
+        return "base-layout";
+    }
+
+    //new method
+    private boolean isUserAuthor(Article article){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        User userEntity = this.userRepository.findByEmail(user.getUsername());
+
+        return userEntity.isAuthor(article);
+    }
+
 }

@@ -9,12 +9,10 @@ import com.example.blog.repository.ArticleRepository;
 import com.example.blog.repository.CategoryRepository;
 import com.example.blog.repository.TagRepository;
 import com.example.blog.repository.UserRepository;
-import org.dom4j.rule.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,10 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -49,8 +45,6 @@ public class ArticleController{
         model.addAttribute("categories",categories);
         return "base-layout";
     }
-
-
 
     //to open edit page
     @GetMapping("/article/edit/{id}")
@@ -102,8 +96,6 @@ public class ArticleController{
         return "base-layout";
     }
 
-
-
     //the process that create new article
     @PostMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
@@ -127,12 +119,9 @@ public class ArticleController{
         return "redirect:/";
     }
 
-
-
-
     @PostMapping("article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String  editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
+    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
         if(!this.articleRepository.existsById(id)){
             return "redirect:/";
         }
@@ -202,7 +191,6 @@ public class ArticleController{
         return (userEntity.isAdmin() || userEntity.isAuthor(article));
     }
 
-
     private HashSet<Tag> findTagsFromString(String tagString){
 
         HashSet<Tag> tags = new HashSet<>();
@@ -217,9 +205,6 @@ public class ArticleController{
             }
             tags.add(currentTag);
         }
-
         return tags;
     }
-
-
 }

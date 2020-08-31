@@ -12,6 +12,12 @@
                     <br/>
                     <span th:text="${user.fullName}"></span>
                 </div>
+                <div class="form-group">
+                    <div  class="col-sm-4 col-sm-offset-4">
+                        <a class="btn btn-default" th:href="@{/}">Cancel</a>
+                        <a class="btn btn-default" th:href="@{/user/edit/{id}(id=${user.id})}">Edit</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

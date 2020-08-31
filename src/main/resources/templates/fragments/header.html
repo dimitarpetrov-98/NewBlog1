@@ -32,6 +32,17 @@
                             My Profile
                         </a>
                     </li>
+
+                    <!--
+                    new added
+                    -->
+
+                    <li class="dropdown" sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/myarticles}">
+                            My Articles
+                        </a>
+                    </li>
+
                     <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/logout}">
                             Logout
