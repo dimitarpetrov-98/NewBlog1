@@ -17,6 +17,25 @@ public class Article {
     private Category category;
     private Set<Tag> tags;
 
+    private byte[] picture;
+    private String pictureBase64;
+
+    @Column(name = "picture")
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
+    public String getPictureBase64() {
+        return pictureBase64;
+    }
+
+    public void setPictureBase64(String pictureBase64) {
+        this.pictureBase64 = pictureBase64;
+    }
 
     public Article(String title, String content, User author, Category category, HashSet<Tag> tags) {
         this.title = title;

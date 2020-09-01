@@ -9,7 +9,11 @@ import com.example.blog.repository.ArticleRepository;
 import com.example.blog.repository.CategoryRepository;
 import com.example.blog.repository.TagRepository;
 import com.example.blog.repository.UserRepository;
+import com.example.blog.service.ArticleService;
+import javassist.NotFoundException;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.HashSet;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,11 @@ public class ArticleController{
     private CategoryRepository categoryRepository;
     @Autowired
     private TagRepository tagRepository;
+    private final ArticleService articleService;
+
+    public ArticleController(ArticleService articleService) {
+        this.articleService = articleService;
+    }
 
     //showing create page of new article
     @GetMapping("/article/create")
@@ -55,7 +65,7 @@ public class ArticleController{
         }
         Article article = this.articleRepository.findById(id).orElse(null);
 
-        if(!isUserAuthorOrAdmin(article)){
+        if(isUserAuthorOrAdmin(article)){
             return "redirect:/article" + id;
         }
 
@@ -77,6 +87,11 @@ public class ArticleController{
     //showing article details
     @GetMapping("/article/{id}")
     public String details(Model model, @PathVariable Integer id){
+
+        Article article = this.articleService.getCurrentArticle(id);
+        //Article article = this.articleRepository.findById(id).orElse(null);
+        //Article article = this.articleRepository.findById(id).orElseThrow();
+
         if(!this.articleRepository.existsById(id)){
             return "redirect:/";
         }
@@ -89,18 +104,25 @@ public class ArticleController{
             model.addAttribute("user", entityUser);
         }
 
-        //added orElse(null)
-        Article article = this.articleRepository.findById(id).orElse(null);
+
+        if(article.getPicture() != null){
+            article.setPictureBase64(Base64.getEncoder().encodeToString(article.getPicture()));
+        }
+
         model.addAttribute("article", article);
         model.addAttribute("view","article/details");
         return "base-layout";
     }
 
+
+    //MOVED TO ArticleServiceImpl
     //the process that create new article
     @PostMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(ArticleBindingModel articleBindingModel){
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+    public String createProcess(ArticleBindingModel articleBindingModel) throws IOException {
+
+        this.articleService.create(articleBindingModel);
+        /*UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                                             .getAuthentication().getPrincipal();
         User userEntity = this.userRepository.findByEmail(user.getUsername());
         Category category = this.categoryRepository.findById(articleBindingModel.getCategoryId()).orElse(null);
@@ -112,25 +134,23 @@ public class ArticleController{
                 userEntity,
                 category,
                 tags
-        );
-
-        this.articleRepository.saveAndFlush(articleEntity);
-
+        );*/
         return "redirect:/";
     }
 
+    //MOVED TO ArticleServiceImpl
     @PostMapping("article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
+    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException {
         if(!this.articleRepository.existsById(id)){
             return "redirect:/";
         }
         //added orElse(null)
         Article article = this.articleRepository.findById(id).orElse(null);
-        if(!isUserAuthorOrAdmin(article)){
+        if(isUserAuthorOrAdmin(article)){
             return "redirect:/article" + id;
         }
-        Category category = this.categoryRepository.findById(articleBindingModel.getCategoryId()).orElse(null);
+        /*Category category = this.categoryRepository.findById(articleBindingModel.getCategoryId()).orElse(null);
 
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
 
@@ -142,6 +162,8 @@ public class ArticleController{
         article.setTags(tags);
 
         this.articleRepository.saveAndFlush(article);
+*/
+        this.articleService.edit(article,articleBindingModel);
 
         return "redirect:/article/" + article.getId();
     }
@@ -155,7 +177,7 @@ public class ArticleController{
         }
         //added orElse(null)
         Article article = this.articleRepository.findById(id).orElse(null);
-        if(!isUserAuthorOrAdmin(article)){
+        if(isUserAuthorOrAdmin(article)){
             return "redirect:/article" + id;
         }
 
@@ -165,7 +187,8 @@ public class ArticleController{
         return "base-layout";
     }
 
-    @PostMapping("/article/delete/{id}")
+    //MOVED TO ArticleServiceImpl
+    /*@PostMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteProcess(@PathVariable Integer id){
         if(!this.articleRepository.existsById(id)){
@@ -182,16 +205,19 @@ public class ArticleController{
 
         return "redirect:/";
 
-    }
+    }*/
+
+    //MOVED TO ArticleServiceImpl
     private boolean isUserAuthorOrAdmin(Article article){
         UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
         User userEntity = this.userRepository.findByEmail(user.getUsername());
 
-        return (userEntity.isAdmin() || userEntity.isAuthor(article));
+        return (!userEntity.isAdmin() && !userEntity.isAuthor(article));
     }
 
-    private HashSet<Tag> findTagsFromString(String tagString){
+    //MOVED TO ArticleServiceImpl
+    /*private HashSet<Tag> findTagsFromString(String tagString){
 
         HashSet<Tag> tags = new HashSet<>();
         String[] tagNames = tagString.split(",\\s*");
@@ -206,5 +232,5 @@ public class ArticleController{
             tags.add(currentTag);
         }
         return tags;
-    }
+    }*/
 }
