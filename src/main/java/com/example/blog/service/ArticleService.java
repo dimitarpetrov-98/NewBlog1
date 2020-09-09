@@ -9,7 +9,6 @@ import java.io.IOException;
 public interface ArticleService {
     Article getCurrentArticle(Integer id);
 
-
     Article create(ArticleBindingModel articleBindingModel) throws IOException;
 
     Article edit(Article article, ArticleBindingModel articleBindingModel) throws IOException;

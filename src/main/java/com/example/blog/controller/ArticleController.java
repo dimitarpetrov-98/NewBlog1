@@ -89,8 +89,6 @@ public class ArticleController{
     public String details(Model model, @PathVariable Integer id){
 
         Article article = this.articleService.getCurrentArticle(id);
-        //Article article = this.articleRepository.findById(id).orElse(null);
-        //Article article = this.articleRepository.findById(id).orElseThrow();
 
         if(!this.articleRepository.existsById(id)){
             return "redirect:/";
@@ -104,9 +102,14 @@ public class ArticleController{
             model.addAttribute("user", entityUser);
         }
 
-
+        try{
         if(article.getPicture() != null){
             article.setPictureBase64(Base64.getEncoder().encodeToString(article.getPicture()));
+        }
+        }catch (NullPointerException e){
+            model.addAttribute("article", article);
+            model.addAttribute("view","article/details");
+            return "base-layout";
         }
 
         model.addAttribute("article", article);

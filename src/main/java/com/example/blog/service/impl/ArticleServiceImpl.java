@@ -37,12 +37,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Article getCurrentArticle(@PathVariable Integer id) {
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-        User userEntity = this.userRepository.findByEmail(user.getUsername());
-
-
-        return this.articleRepository.findArticleByIdAndAuthor(id,userEntity);
+        Article article = this.articleRepository.findArticleById(id);
+        return article;
     }
 
 
